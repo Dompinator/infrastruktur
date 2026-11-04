@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFRASTRUCTURE — Build to Last</title>
+<style>
+  :root {
+    --bg: #101512; --panel: #19221d; --panel2: #202c25; --line: #34463a;
+    --text: #edf4ed; --muted: #9aaa9e; --green: #b8f36b; --orange: #ffb45e;
+    --red: #ff6f68;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text);
+    background: radial-gradient(ellipse at 50% -20%, #304234 0, #17221b 42%, var(--bg) 78%);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+  }
+  .wrap { width: min(1180px, calc(100% - 36px)); margin: auto; padding: 28px 0 54px; }
+  header { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:42px; }
+  .brand { display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:.16em; font-size:13px; }
+  .mark { width:34px; height:34px; border:1px solid #6e8b70; display:grid; place-items:center; color:var(--green); transform:rotate(45deg); }
+  .mark span { transform:rotate(-45deg); font-size:18px; }
+  .status { color:var(--muted); font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
+  .hero { display:grid; grid-template-columns: 1.1fr .9fr; gap:44px; align-items:end; margin-bottom:28px; }
+  .eyebrow { color:var(--green); font-size:11px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; }
+  h1 { font-size:clamp(42px, 7vw, 78px); line-height:.94; letter-spacing:-.065em; margin:15px 0 18px; max-width:700px; }
+  h1 em { color:var(--green); font-style:normal; }
+  .intro { color:var(--muted); line-height:1.65; max-width:520px; font-size:15px; }
+  .hero-note { border-left:2px solid var(--green); padding:6px 0 6px 18px; color:#c4d0c6; font-size:13px; line-height:1.6; max-width:310px; justify-self:end; }
+  .dashboard { display:grid; grid-template-columns:minmax(0, 1.55fr) minmax(290px, .85fr); gap:16px; }
+  .panel { background:linear-gradient(145deg, rgba(34,48,39,.96), rgba(22,31,25,.98)); border:1px solid var(--line); border-radius:15px; overflow:hidden; box-shadow:0 18px 55px #0003; }
+  .panel-head { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:17px 20px; border-bottom:1px solid var(--line); }
+  .panel-head h2 { margin:0; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+  .live { display:flex; align-items:center; gap:7px; color:var(--green); font-size:10px; letter-spacing:.13em; text-transform:uppercase; }
+  .dot { width:7px; height:7px; background:var(--green); border-radius:50%; box-shadow:0 0 12px var(--green); }
+  .scene { position:relative; min-height:410px; overflow:hidden; display:flex; align-items:flex-end; justify-content:center; padding:32px 20px 0; background:linear-gradient(#293b31 0%, #1e2d25 62%, #18231d 100%); }
+  .sun { position:absolute; width:130px; height:130px; border-radius:50%; background:#c4e69a; opacity:.13; filter:blur(1px); top:32px; right:12%; }
+  .cloud { position:absolute; height:15px; width:90px; border-radius:50%; background:#b9cbb9; opacity:.09; top:105px; left:12%; filter:blur(7px); }
+  .ground { position:absolute; bottom:0; width:100%; height:48px; background:linear-gradient(#65785b, #394a3a); border-top:3px solid #9aaa70; }
+  .building { position:relative; z-index:2; width:230px; height:260px; margin-bottom:44px; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; transform-origin:bottom center; transition:filter .3s; }
+  .roof { width:246px; height:15px; background:#758478; border:2px solid #a6b5a2; border-bottom:0; }
+  .floors { width:220px; height:230px; display:flex; flex-direction:column-reverse; gap:5px; padding:0 8px; background:#657768; border:3px solid #a2b19d; border-top:0; box-shadow:inset 0 0 0 5px #435447, 13px 8px 0 #0002; }
+  .floor { flex:1; min-height:24px; background:linear-gradient(90deg,#718778,#52685a); border:2px solid #9cad98; display:flex; justify-content:space-evenly; align-items:center; position:relative; }
+  .window { width:19px; height:22px; background:#b9d6b0; border:2px solid #3b5143; box-shadow:inset 0 0 8px #e7f6c5; }
+  .floor::after { content:""; position:absolute; bottom:-5px; left:0; right:0; height:4px; background:#354b3c; }
+  .foundation { width:250px; height:17px; background:#8b9282; border:3px solid #c1c5af; border-top:0; }
+  .building.wobble { animation:wobble .5s infinite alternate ease-in-out; }
+  .building.cracked .floors { filter:saturate(.65); }
+  .building.collapsing { animation:collapse 1.25s ease-in forwards; }
+  @keyframes wobble { from{transform:rotate(-1deg) translateX(-2px)} to{transform:rotate(1.3deg) translateX(2px)} }
+  @keyframes collapse { 0%{transform:rotate(0) translateY(0)} 25%{transform:rotate(5deg) translateY(8px)} 100%{transform:rotate(72deg) translate(80px,120px);opacity:.2;filter:blur(2px)} }
+  .scene-caption { position:absolute; top:19px; left:20px; color:#c2d0c3; font-size:10px; letter-spacing:.16em; text-transform:uppercase; }
+  .scene-bottom { position:absolute; z-index:3; bottom:12px; left:20px; right:20px; display:flex; justify-content:space-between; color:#e1e9df; font-size:10px; letter-spacing:.12em; text-transform:uppercase; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); }
+  .stat { padding:16px 18px; border-right:1px solid var(--line); }
+  .stat:last-child { border:0; }
+  .stat small { display:block; color:var(--muted); font-size:9px; letter-spacing:.13em; text-transform:uppercase; margin-bottom:7px; }
+  .stat strong { font-size:22px; letter-spacing:-.04em; }
+  .right-col { display:flex; flex-direction:column; gap:16px; }
+  .timer-card { padding:21px; }
+  .timer-top { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:10px; letter-spacing:.13em; text-transform:uppercase; }
+  .timer { font-size:54px; font-weight:850; letter-spacing:-.07em; margin:10px 0 2px; font-variant-numeric:tabular-nums; }
+  .timer span { font-size:17px; color:var(--muted); letter-spacing:0; }
+  .bar { height:7px; background:#0d130f; border-radius:8px; overflow:hidden; margin:15px 0 11px; }
+  .bar-fill { height:100%; width:100%; background:var(--green); border-radius:8px; transition:width .15s linear, background .3s; }
+  .timer-hint { color:var(--muted); font-size:11px; line-height:1.5; min-height:33px; }
+  .primary { border:0; border-radius:8px; background:var(--green); color:#172017; padding:13px 16px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; font-size:11px; cursor:pointer; width:100%; margin-top:17px; transition:transform .15s,filter .15s; }
+  button:hover { filter:brightness(1.08); transform:translateY(-1px); }
+  button:active { transform:translateY(0); }
+  button:disabled { opacity:.35; cursor:not-allowed; filter:grayscale(1); transform:none; }
+  .upgrades { padding:18px; }
+  .upgrades-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; }
+  .upgrades-head h2 { margin:0; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+  .level { color:var(--green); font-size:10px; letter-spacing:.1em; }
+  .upgrade { display:grid; grid-template-columns:40px 1fr auto; align-items:center; gap:11px; padding:12px 0; border-top:1px solid #344238; }
+  .upgrade-icon { width:38px; height:38px; display:grid; place-items:center; border:1px solid #50634f; border-radius:9px; color:var(--green); font-size:17px; background:#26372b; }
+  .upgrade h3 { font-size:12px; margin:0 0 4px; }
+  .upgrade p { font-size:10px; color:var(--muted); margin:0; line-height:1.4; }
+  .upgrade button { background:#293a2d; color:var(--green); border:1px solid #536b50; border-radius:6px; padding:8px 9px; font-size:10px; font-weight:800; cursor:pointer; white-space:nowrap; }
+  .upgrade button:disabled { opacity:.3; }
+  .upgrade button span { display:block; color:var(--muted); font-size:9px; font-weight:500; margin-top:3px; }
+  .log { padding:16px 19px; }
+  .log h2 { margin:0 0 10px; font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+  #logline { font-size:11px; line-height:1.5; color:#d0dbd1; min-height:34px; }
+  .footer { display:flex; justify-content:space-between; gap:16px; margin-top:22px; color:#6f8073; font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+  @media(max-width:800px) { .hero{grid-template-columns:1fr;gap:12px}.hero-note{justify-self:start}.dashboard{grid-template-columns:1fr}.scene{min-height:350px}.right-col{display:grid;grid-template-columns:1fr} }
+  @media(max-width:480px) { .wrap{width:calc(100% - 22px);padding-top:18px} header{margin-bottom:30px}.stats .stat{padding:13px 10px}.stat strong{font-size:18px}.building{transform:scale(.85);transform-origin:bottom center;margin-bottom:34px}.scene{min-height:320px}.footer{flex-direction:column} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="mark"><span>⌂</span></div> INFRASTRUCTURE</div>
+    <div class="status">A construction survival simulator · v1.0</div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Build it. Improve it. Make it last.</div>
+      <h1>BAD BUILDING.<br><em>BETTER FUTURE.</em></h1>
+      <p class="intro">You are the world's least reliable builder. Your first building is barely standing. Invest in infrastructure, reinforce the structure, and see how long you can keep it upright.</p>
+    </div>
+    <div class="hero-note">THE RULE IS SIMPLE<br>Every upgrade makes your next building stronger. Your first one? It probably won't make it to the end of this sentence.</div>
+  </section>
+
+  <main class="dashboard">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>01 / Construction site</h2>
+        <div class="live"><i class="dot"></i><span id="site-status">UNSTABLE</span></div>
+      </div>
+      <div class="scene">
+        <div class="sun"></div><div class="cloud"></div>
+        <div class="scene-caption">SITE 001 — LIVE STRUCTURAL VIEW</div>
+        <div class="building wobble" id="building">
+          <div class="roof"></div>
+          <div class="floors" id="floors">
+            <div class="floor"><i class="window"></i><i class="window"></i><i class="window"></i></div>
+            <div class="floor"><i class="window"></i><i class="window"></i><i class="window"></i></div>
+            <div class="floor"><i class="window"></i><i class="window"></i><i class="window"></i></div>
+          </div>
+          <div class="foundation"></div>
+        </div>
+        <div class="ground"></div>
+        <div class="scene-bottom"><span>STRUCTURAL INTEGRITY: <b id="integrity-label">12%</b></span><span>WEATHER: CLEAR (FOR NOW)</span></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>Buildings completed</small><strong id="completed">0</strong></div>
+        <div class="stat"><small>Best survival</small><strong id="best">—</strong></div>
+        <div class="stat"><small>Builder rank</small><strong id="rank">Rookie</strong></div>
+      </div>
+    </section>
+
+    <aside class="right-col">
+      <section class="panel timer-card">
+        <div class="timer-top"><span>02 / Time until collapse</span><span id="phase">ACTIVE</span></div>
+        <div class="timer" id="timer">10.0 <span>sec</span></div>
+        <div class="bar"><div class="bar-fill" id="bar"></div></div>
+        <div class="timer-hint" id="hint">The foundations are terrible. This one is not going to last.</div>
+        <button class="primary" id="start">START CONSTRUCTION</button>
+      </section>
+
+      <section class="panel upgrades">
+        <div class="upgrades-head"><h2>03 / Infrastructure</h2><span class="level" id="level">LEVEL 0</span></div>
+        <div class="upgrade">
+          <div class="upgrade-icon">▤</div>
+          <div><h3>Solid foundations</h3><p>Give the building something real to stand on.</p></div>
+          <button id="foundation">UPGRADE<span>+8 sec</span></button>
+        </div>
+        <div class="upgrade">
+          <div class="upgrade-icon">╫</div>
+          <div><h3>Steel framework</h3><p>Reinforce the structure from the inside.</p></div>
+          <button id="steel">UPGRADE<span>+15 sec</span></button>
+        </div>
+        <div class="upgrade">
+          <div class="upgrade-icon">⬡</div>
+          <div><h3>Modern engineering</h3><p>Smarter design. Stronger buildings.</p></div>
+          <button id="engineering">UPGRADE<span>+30 sec</span></button>
+        </div>
+      </section>
+      <section class="panel log">
+        <h2>04 / Site report</h2>
+        <div id="logline">No construction activity yet. Press start when you're ready.</div>
+      </section>
+    </aside>
+  </main>
+  <div class="footer"><span>INFRASTRUCTURE DIVISION / BUILD TO LAST</span><span>Every structure starts somewhere.</span></div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const upgrades = {
+    foundation: { cost: 1, seconds: 8, name: "Solid foundations", integrity: 18 },
+    steel: { cost: 2, seconds: 15, name: "Steel framework", integrity: 27 },
+    engineering: { cost: 4, seconds: 30, name: "Modern engineering", integrity: 38 }
+  };
+  let seconds = 10, remaining = 10, running = false, completed = 0, best = 0;
+  let materials = 0, level = 0, integrity = 12, startedAt = 0, raf = null;
+  let bought = { foundation: 0, steel: 0, engineering: 0 };
+  let lastFrame = 0;
+
+  function lifespan() {
+    return 10 + bought.foundation * 8 + bought.steel * 15 + bought.engineering * 30;
+  }
+  function rank() {
+    if (level >= 12) return "Architect";
+    if (level >= 8) return "Engineer";
+    if (level >= 4) return "Contractor";
+    if (level >= 1) return "Apprentice";
+    return "Rookie";
+  }
+  function update() {
+    $("timer").innerHTML = `${Math.max(0, remaining).toFixed(1)} <span>sec</span>`;
+    $("bar").style.width = `${Math.max(0, remaining / seconds * 100)}%`;
+    $("bar").style.background = remaining < seconds * .25 ? "var(--red)" : remaining < seconds * .5 ? "var(--orange)" : "var(--green)";
+    $("completed").textContent = completed;
+    $("best").textContent = best ? `${best.toFixed(1)}s` : "—";
+    $("rank").textContent = rank();
+    $("level").textContent = `LEVEL ${level}`;
+    $("integrity-label").textContent = `${integrity}%`;
+    $("site-status").textContent = running ? (remaining < seconds * .25 ? "CRITICAL" : "UNDER CONSTRUCTION") : "UNSTABLE";
+    $("phase").textContent = running ? "ACTIVE" : "STANDBY";
+    Object.entries(upgrades).forEach(([id, item]) => {
+      const button = $(id);
+      button.disabled = running || materials < item.cost;
+      button.innerHTML = `UPGRADE<span>${item.cost} ${item.cost === 1 ? "material" : "materials"}</span>`;
+    });
+    $("start").disabled = running;
+    $("start").textContent = completed ? "BUILD NEXT STRUCTURE" : "START CONSTRUCTION";
+  }
+  function report(message) { $("logline").textContent = message; }
+  function makeBuilding() {
+    const b = $("building");
+    b.className = "building wobble";
+    $("floors").innerHTML = "";
+    const floorCount = Math.min(7, 3 + Math.floor(level / 2));
+    for (let i = 0; i < floorCount; i++) {
+      const floor = document.createElement("div");
+      floor.className = "floor";
+      for (let j = 0; j < 3; j++) {
+        const w = document.createElement("i");
+        w.className = "window";
+        floor.appendChild(w);
+      }
+      $("floors").appendChild(floor);
+    }
+    $("floors").style.height = `${Math.min(270, 150 + floorCount * 25)}px`;
+    $("building").style.height = `${Math.min(300, 180 + floorCount * 25)}px`;
+  }
+  function start() {
+    if (running) return;
+    makeBuilding();
+    seconds = lifespan();
+    remaining = seconds;
+    startedAt = performance.now();
+    lastFrame = startedAt;
+    running = true;
+    $("hint").textContent = `Building lifespan: ${seconds} seconds. Keep upgrading your infrastructure between builds.`;
+    report("Construction started. Structural monitoring is online.");
+    update();
+    raf = requestAnimationFrame(tick);
+  }
+  function tick(now) {
+    if (!running) return;
+    const delta = Math.min((now - lastFrame) / 1000, .1);
+    lastFrame = now;
+    remaining -= delta;
+    if (remaining <= 0) {
+      remaining = 0;
+      collapse();
+      return;
+    }
+    const ratio = remaining / seconds;
+    if (ratio < .25) {
+      $("building").classList.add("cracked");
+      $("hint").textContent = "CRITICAL WARNING: Structural failure is imminent.";
+    } else if (ratio < .5) {
+      $("hint").textContent = "The structure is under stress. It needs better infrastructure.";
+    }
+    update();
+    raf = requestAnimationFrame(tick);
+  }
+  function collapse() {
+    running = false;
+    $("building").className = "building collapsing";
+    completed++;
+    best = Math.max(best, seconds);
+    materials += 1 + Math.floor(level / 3);
+    $("hint").textContent = "BUILDING COLLAPSED. You recovered materials from the wreckage.";
+    report(`Structure #${completed} collapsed after ${seconds.toFixed(1)} seconds. +${1 + Math.floor(level / 3)} materials recovered. Upgrade and try again.`);
+    $("site-status").textContent = "COLLAPSED";
+    $("phase").textContent = "FAILED";
+    update();
+    $("start").disabled = false;
+    $("start").textContent = "REBUILD";
+  }
+  function buy(id) {
+    const item = upgrades[id];
+    if (running || materials < item.cost) return;
+    materials -= item.cost;
+    bought[id]++;
+    level++;
+    integrity = Math.min(99, integrity + item.integrity);
+    report(`${item.name} installed. The next building will last ${lifespan()} seconds.`);
+    $("hint").textContent = `${item.name} added to your infrastructure. Your next structure will be stronger.`;
+    update();
+  }
+  $("start").addEventListener("click", start);
+  Object.keys(upgrades).forEach(id => $(id).addEventListener("click", () => buy(id)));
+  update();
+})();
+</script>
+</body>
+</html>
