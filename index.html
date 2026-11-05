@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFRASTRUCTURE — Build to Last</title>
+<style>
+  :root {
+    --bg: #101512; --panel: #19221d; --panel2: #202c25; --line: #34463a;
+    --text: #edf4ed; --muted: #9aaa9e; --green: #b8f36b; --orange: #ffb45e;
+    --red: #ff6f68;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text);
+    background: radial-gradient(ellipse at 50% -20%, #304234 0, #17221b 42%, var(--bg) 78%);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+  }
+  .wrap { width: min(1180px, calc(100% - 36px)); margin: auto; padding: 28px 0 54px; }
+  header { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:42px; }
+  .brand { display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:.16em; font-size:13px; }
+  .mark { width:34px; height:34px; border:1px solid #6e8b70; display:grid; place-items:center; color:var(--green); transform:rotate(45deg); }
+  .mark span { transform:rotate(-45deg); font-size:18px; }
+  .materials-display {
+    display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 14px; letter-spacing: .06em;
+  }
+  .cube {
+    width: 22px; height: 22px; position: relative; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(30deg);
+    animation: spinCube 6s linear infinite;
+  }
+  .cube span {
+    position: absolute; width: 22px; height: 22px; border: 1px solid #b8f36b; background: #26372b88;
+  }
+  .cube span:nth-child(1) { transform: rotateY(0deg) translateZ(11px); }
+  .cube span:nth-child(2) { transform: rotateY(90deg) translateZ(11px); }
+  .cube span:nth-child(3) { transform: rotateY(180deg) translateZ(11px); }
+  .cube span:nth-child(4) { transform: rotateY(-90deg) translateZ(11px); }
+  .cube span:nth-child(5) { transform: rotateX(90deg) translateZ(11px); }
+  .cube span:nth-child(6) { transform: rotateX(-90deg) translateZ(11px); }
+  @keyframes spinCube { to { transform: rotateX(-20deg) rotateY(390deg); } }
+  .hero { display:grid; grid-template-columns: 1.1fr .9fr; gap:44px; align-items:end; margin-bottom:28px; }
+  .eyebrow { color:var(--green); font-size:11px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; }
+  h1 { font-size:clamp(42px, 7vw, 78px); line-height:.94; letter-spacing:-.065em; margin:15px 0 18px; max-width:700px; }
+  h1 em { color:var(--green); font-style:normal; }
+  .intro { color:var(--muted); line-height:1.65; max-width:520px; font-size:15px; }
+  .hero-note { border-left:2px solid var(--green); padding:6px 0 6px 18px; color:#c4d0c6; font-size:13px; line-height:1.6; max-width:310px; justify-self:end; }
+  .dashboard { display:grid; grid-template-columns:minmax(0, 1.55fr) minmax(290px, .85fr); gap:16px; }
+  .panel { background:linear-gradient(145deg, rgba(34,48,39,.96), rgba(22,31,25,.98)); border:1px solid var(--line); border-radius:15px; overflow:hidden; box-shadow:0 18px 55px #0003; }
+  .panel-head { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:17px 20px; border-bottom:1px solid var(--line); }
+  .panel-head h2 { margin:0; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+  .live { display:flex; align-items:center; gap:7px; color:var(--green); font-size:10px; letter-spacing:.13em; text-transform:uppercase; }
+  .dot { width:7px; height:7px; background:var(--green); border-radius:50%; box-shadow:0 0 12px var(--green); }
+  .scene { position:relative; min-height:410px; overflow:hidden; display:flex; align-items:flex-end; justify-content:center; padding:32px 20px 0; background:linear-gradient(#293b31 0%, #1e2d25 62%, #18231d 100%); }
+  .sun { position:absolute; width:130px; height:130px; border-radius:50%; background:#c4e69a; opacity:.13; filter:blur(1px); top:32px; right:12%; }
+  .cloud { position:absolute; height:15px; width:90px; border-radius:50%; background:#b9cbb9; opacity:.09; top:105px; left:12%; filter:blur(7px); }
+  .ground { position:absolute; bottom:0; width:100%; height:48px; background:linear-gradient(#65785b, #394a3a); border-top:3px solid #9aaa70; }
+  .rain { position:absolute; inset:0; pointer-events:none; z-index:1; opacity:0; transition:opacity .4s; }
+  .rain.active { opacity:1; }
+  .rain-drop { position:absolute; width:1px; height:18px; background:linear-gradient(#fff0, #a0c0e0); animation:fall linear infinite; }
+  @keyframes fall { to { transform:translateY(420px); } }
+  .lightning { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:4; transition:opacity .05s; }
+  .scene.space-weather { background: radial-gradient(ellipse at 50% 0%, #1a0a3a 0%, #0a0518 70%); }
+  .scene.space-weather .sun { background:#9b59b6; opacity:.3; }
+  .building { position:relative; z-index:2; width:230px; height:140px; margin-bottom:44px; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; transform-origin:bottom center; transition:filter .3s; }
+  .roof { width:246px; height:15px; background:#758478; border:2px solid #a6b5a2; border-bottom:0; }
+  .floors { width:220px; height:100px; display:flex; flex-direction:column-reverse; gap:5px; padding:0 8px; background:#657768; border:3px solid #a2b19d; border-top:0; box-shadow:inset 0 0 0 5px #435447, 13px 8px 0 #0002; }
+  .floor { flex:1; min-height:24px; background:linear-gradient(90deg,#718778,#52685a); border:2px solid #9cad98; display:flex; justify-content:space-evenly; align-items:center; position:relative; }
+  .window { width:19px; height:22px; background:#b9d6b0; border:2px solid #3b5143; box-shadow:inset 0 0 8px #e7f6c5; }
+  .floor::after { content:""; position:absolute; bottom:-5px; left:0; right:0; height:4px; background:#354b3c; }
+  .foundation { width:250px; height:17px; background:#8b9282; border:3px solid #c1c5af; border-top:0; }
+  /* Rank-specific visual styles */
+  .building.rank-dirt .roof { background:#6b5344; border-color:#8a6d5b; }
+  .building.rank-dirt .floors { background:#8b6f4e; border-color:#a58a6a; box-shadow:inset 0 0 0 5px #5c4532, 13px 8px 0 #0002; }
+  .building.rank-dirt .floor { background:linear-gradient(90deg,#9c7d5c,#7a5e3f); border-color:#b89a78; }
+  .building.rank-dirt .window { background:#c4a882; border-color:#5c4532; box-shadow:inset 0 0 8px #e8d4b0; }
+  .building.rank-dirt .foundation { background:#6b5344; border-color:#8a6d5b; }
+
+  .building.rank-wood .roof { background:#8B5A2B; border-color:#a67c52; }
+  .building.rank-wood .floors { background:#A0522D; border-color:#c4844a; box-shadow:inset 0 0 0 5px #6b3e1f, 13px 8px 0 #0002; }
+  .building.rank-wood .floor { background:linear-gradient(90deg,#cd853f,#8b5a2b); border-color:#d2b48c; }
+  .building.rank-wood .window { background:#f5deb3; border-color:#5c3317; }
+  .building.rank-wood .foundation { background:#8B4513; border-color:#a0522d; }
+
+  .building.rank-stone .roof { background:#708090; border-color:#a0a0a0; }
+  .building.rank-stone .floors { background:#778899; border-color:#b0c4de; box-shadow:inset 0 0 0 5px #556b7d, 13px 8px 0 #0002; }
+  .building.rank-stone .floor { background:linear-gradient(90deg,#90a4ae,#607d8b); border-color:#b0bec5; }
+  .building.rank-stone .window { background:#e0e0e0; border-color:#37474f; }
+  .building.rank-stone .foundation { background:#696969; border-color:#808080; }
+
+  .building.rank-brick .roof { background:#8B4513; border-color:#a0522d; }
+  .building.rank-brick .floors { background:#A52A2A; border-color:#cd5c5c; box-shadow:inset 0 0 0 5px #5c1818, 13px 8px 0 #0002; }
+  .building.rank-brick .floor { background:linear-gradient(90deg,#b22222,#8b0000); border-color:#dc143c; }
+  .building.rank-brick .window { background:#ffe4e1; border-color:#4a1c1c; }
+  .building.rank-brick .foundation { background:#654321; border-color:#8b4513; }
+
+  .building.rank-metal .roof { background:#C0C0C0; border-color:#e0e0e0; }
+  .building.rank-metal .floors { background:#A9A9A9; border-color:#d3d3d3; box-shadow:inset 0 0 0 5px #696969, 13px 8px 0 #0002; }
+  .building.rank-metal .floor { background:linear-gradient(90deg,#b0b0b0,#808080); border-color:#c0c0c0; }
+  .building.rank-metal .window { background:#f0f8ff; border-color:#2f4f4f; box-shadow:inset 0 0 10px #fff; }
+  .building.rank-metal .foundation { background:#808080; border-color:#a0a0a0; }
+
+  .building.rank-sky .roof { background:#4682b4; border-color:#87ceeb; }
+  .building.rank-sky .floors { background:#5f9ea0; border-color:#b0e0e6; box-shadow:inset 0 0 0 5px #2f4f4f, 13px 8px 0 #0002; }
+  .building.rank-sky .floor { background:linear-gradient(90deg,#6ca6cd,#4682b4); border-color:#add8e6; }
+  .building.rank-sky .window { background:#e6f3ff; border-color:#1e3a5f; box-shadow:inset 0 0 12px #fff; }
+  .building.rank-sky .foundation { background:#2f4f4f; border-color:#4682b4; }
+
+  .building.rank-future .roof { background:#00ced1; border-color:#00ffff; box-shadow:0 0 15px #00ffff; }
+  .building.rank-future .floors { background:#20b2aa; border-color:#48d1cc; box-shadow:inset 0 0 0 5px #008b8b, 0 0 20px #00ffff55, 13px 8px 0 #0002; }
+  .building.rank-future .floor { background:linear-gradient(90deg,#40e0d0,#20b2aa); border-color:#00ffff; }
+  .building.rank-future .window { background:#e0ffff; border-color:#008b8b; box-shadow:inset 0 0 15px #00ffff; }
+  .building.rank-future .foundation { background:#008b8b; border-color:#00ced1; }
+
+  .building.rank-moon .roof { background:#d3d3d3; border-color:#f5f5f5; }
+  .building.rank-moon .floors { background:#c0c0c0; border-color:#e0e0e0; box-shadow:inset 0 0 0 5px #a9a9a9, 13px 8px 0 #0002; }
+  .building.rank-moon .floor { background:linear-gradient(90deg,#dcdcdc,#b0b0b0); border-color:#f0f0f0; }
+  .building.rank-moon .window { background:#f8f8ff; border-color:#808080; box-shadow:inset 0 0 10px #fff; }
+  .building.rank-moon .foundation { background:#a9a9a9; border-color:#c0c0c0; }
+
+  .building.rank-galactic .roof { background:#4b0082; border-color:#9370db; box-shadow:0 0 20px #9370db; }
+  .building.rank-galactic .floors { background:#483d8b; border-color:#6a5acd; box-shadow:inset 0 0 0 5px #2e0854, 0 0 25px #9370db55, 13px 8px 0 #0002; }
+  .building.rank-galactic .floor { background:linear-gradient(90deg,#6a5acd,#483d8b); border-color:#9370db; }
+  .building.rank-galactic .window { background:#e6e6fa; border-color:#4b0082; box-shadow:inset 0 0 15px #dda0dd; }
+  .building.rank-galactic .foundation { background:#2e0854; border-color:#4b0082; }
+
+  .building.rank-luxury .floors { background:#daa520; border-color:#ffd700; }
+  .building.rank-tall .floors { background:#4682b4; border-color:#87ceeb; }
+  .building.rank-insane .floors { background:#ff4500; border-color:#ff6347; }
+  .building.rank-atmo .floors { background:#1e90ff; border-color:#00bfff; }
+  .building.rank-gigantic .floors { background:#2f4f4f; border-color:#708090; }
+  .building.rank-space .floors { background:#191970; border-color:#4169e1; }
+  .building.rank-blackhole .floors { background:#000000; border-color:#4b0082; }
+  .building.rank-multi .floors { background:#4b0082; border-color:#9370db; }
+  .building.rank-dimension .floors { background:linear-gradient(90deg,#ff00ff,#00ffff); border-color:#fff; }
+  .building.rank-universal .floors { background:linear-gradient(90deg,#daa520,#b8860b); border-color:#ffd700; box-shadow:inset 0 0 0 5px #8b6914, 0 0 30px #ffd70066, 13px 8px 0 #0002; }
+  .building.rank-universal .floor { background:linear-gradient(90deg,#ffec8b,#daa520); border-color:#ffd700; }
+  .building.rank-universal .window { background:#fffacd; border-color:#b8860b; box-shadow:inset 0 0 20px #ffd700; }
+  .building.rank-universal .foundation { background:#b8860b; border-color:#daa520; }
+
+  .building.wobble { animation:wobble .5s infinite alternate ease-in-out; }
+  .building.cracked .floors { filter:saturate(.65); }
+  .building.collapsing { animation:collapse 1.25s ease-in forwards; }
+  @keyframes wobble { from{transform:rotate(-1deg) translateX(-2px)} to{transform:rotate(1.3deg) translateX(2px)} }
+  @keyframes collapse { 0%{transform:rotate(0) translateY(0)} 25%{transform:rotate(5deg) translateY(8px)} 100%{transform:rotate(72deg) translate(80px,120px);opacity:.2;filter:blur(2px)} }
+  .scene-caption { position:absolute; top:19px; left:20px; color:#c2d0c3; font-size:10px; letter-spacing:.16em; text-transform:uppercase; }
+  .scene-bottom { position:absolute; z-index:3; bottom:12px; left:20px; right:20px; display:flex; justify-content:space-between; color:#e1e9df; font-size:10px; letter-spacing:.12em; text-transform:uppercase; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); }
+  .stat { padding:16px 18px; border-right:1px solid var(--line); }
+  .stat:last-child { border:0; }
+  .stat small { display:block; color:var(--muted); font-size:9px; letter-spacing:.13em; text-transform:uppercase; margin-bottom:7px; }
+  .stat strong { font-size:22px; letter-spacing:-.04em; }
+  .right-col { display:flex; flex-direction:column; gap:16px; }
+  .timer-card { padding:21px; }
+  .timer-top { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:10px; letter-spacing:.13em; text-transform:uppercase; }
+  .timer { font-size:54px; font-weight:850; letter-spacing:-.07em; margin:10px 0 2px; font-variant-numeric:tabular-nums; }
+  .timer span { font-size:17px; color:var(--muted); letter-spacing:0; }
+  .bar { height:7px; background:#0d130f; border-radius:8px; overflow:hidden; margin:15px 0 11px; }
+  .bar-fill { height:100%; width:100%; background:var(--green); border-radius:8px; transition:width .15s linear, background .3s; }
+  .timer-hint { color:var(--muted); font-size:11px; line-height:1.5; min-height:33px; }
+  .primary { border:0; border-radius:8px; background:var(--green); color:#172017; padding:13px 16px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; font-size:11px; cursor:pointer; width:100%; margin-top:17px; transition:transform .15s,filter .15s; }
+  button:hover { filter:brightness(1.08); transform:translateY(-1px); }
+  button:active { transform:translateY(0); }
+  button:disabled { opacity:.35; cursor:not-allowed; filter:grayscale(1); transform:none; }
+  .upgrades { padding:18px; }
+  .upgrades-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; }
+  .upgrades-head h2 { margin:0; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+  .level { color:var(--green); font-size:10px; letter-spacing:.1em; }
+  .upgrade { display:grid; grid-template-columns:40px 1fr auto; align-items:center; gap:11px; padding:12px 0; border-top:1px solid #344238; }
+  .upgrade-icon { width:38px; height:38px; display:grid; place-items:center; border:1px solid #50634f; border-radius:9px; color:var(--green); font-size:17px; background:#26372b; }
+  .upgrade h3 { font-size:12px; margin:0 0 4px; }
+  .upgrade p { font-size:10px; color:var(--muted); margin:0; line-height:1.4; }
+  .upgrade button { background:#293a2d; color:var(--green); border:1px solid #536b50; border-radius:6px; padding:8px 9px; font-size:10px; font-weight:800; cursor:pointer; white-space:nowrap; }
+  .upgrade button:disabled { opacity:.3; }
+  .upgrade button span { display:block; color:var(--muted); font-size:9px; font-weight:500; margin-top:3px; }
+  .log { padding:16px 19px; }
+  .log h2 { margin:0 0 10px; font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+  #logline { font-size:11px; line-height:1.5; color:#d0dbd1; min-height:34px; }
+  .achievements-btn {
+    position: absolute; left: -60px; top: 18px;
+    width: 42px; height: 42px; border-radius: 8px; border: 1px solid #536b50;
+    background: #26372b; color: var(--green); font-size: 20px; cursor: pointer;
+    display: grid; place-items: center; z-index: 20; transition: transform .15s, filter .15s;
+  }
+  .achievements-btn:hover { filter: brightness(1.15); transform: scale(1.05); }
+  .dashboard { position: relative; }
+  .achievements-modal {
+    position: fixed; inset: 0; background: #0008; display: none; align-items: center; justify-content: center; z-index: 30;
+  }
+  .achievements-modal.open { display: flex; }
+  .achievements-panel {
+    width: min(520px, 92vw); max-height: 80vh; overflow-y: auto; background: #19221d; border: 1px solid #34463a;
+    border-radius: 14px; padding: 20px; box-shadow: 0 20px 60px #0006;
+  }
+  .achievements-panel h2 { margin: 0 0 14px; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
+  .ach-cat { margin: 16px 0 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--green); }
+  .ach { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2a3a2f; }
+  .ach img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #26372b; }
+  .ach .no-img { width: 40px; height: 40px; border-radius: 6px; background: #26372b; display: grid; place-items: center; color: #6f8073; font-size: 18px; }
+  .ach h3 { margin: 0 0 3px; font-size: 13px; }
+  .ach p { margin: 0; font-size: 11px; color: var(--muted); }
+  .ach.locked { opacity: .45; }
+  .diff { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
+  .diff.easy { background: #2a4a2a; color: #b8f36b; }
+  .diff.medium { background: #4a3a1a; color: #ffb45e; }
+  .diff.extreme { background: #4a1a1a; color: #ff6f68; }
+  .diff.insane { background: #3a1a3a; color: #d4a5ff; }
+  .close-ach { margin-top: 16px; }
+  @media(max-width:800px) { .hero{grid-template-columns:1fr;gap:12px}.hero-note{justify-self:start}.dashboard{grid-template-columns:1fr}.scene{min-height:350px}.right-col{display:grid;grid-template-columns:1fr} }
+  @media(max-width:480px) { .wrap{width:calc(100% - 22px);padding-top:18px} header{margin-bottom:30px}.stats .stat{padding:13px 10px}.stat strong{font-size:18px}.building{transform:scale(.85);transform-origin:bottom center;margin-bottom:34px}.scene{min-height:320px}.footer{flex-direction:column} }
+</style>
+</head>
+<body>
+<div class="achievements-modal" id="ach-modal">
+  <div class="achievements-panel">
+    <h2>Achievements</h2>
+    <div id="ach-list"></div>
+    <button class="primary close-ach" id="ach-close">CLOSE</button>
+  </div>
+</div>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="mark"><span>⌂</span></div> INFRASTRUCTURE</div>
+    <div class="status">A construction survival simulator · v1.0</div>
+    <div class="materials-display">
+      <div class="cube"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <span id="materials-count">0</span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Build it. Improve it. Make it last.</div>
+      <h1>BAD BUILDING.<br><em>BETTER FUTURE.</em></h1>
+      <p class="intro">You are the world's least reliable builder. Your first building is barely standing. Invest in infrastructure, reinforce the structure, and see how long you can keep it upright.</p>
+    </div>
+    <div class="hero-note">THE RULE IS SIMPLE<br>Every upgrade makes your next building stronger. Your first one? It probably won't make it to the end of this sentence.</div>
+  </section>
+
+  <main class="dashboard">
+    <button class="achievements-btn" id="ach-btn" title="Achievements">🏆</button>
+    <section class="panel">
+      <div class="panel-head">
+        <h2>01 / Construction site</h2>
+        <div class="live"><i class="dot"></i><span id="site-status">UNSTABLE</span></div>
+      </div>
+      <div class="scene">
+        <div class="sun"></div><div class="cloud"></div>
+        <div class="rain" id="rain"></div>
+        <div class="lightning" id="lightning"></div>
+        <div class="scene-caption">SITE 001 — LIVE STRUCTURAL VIEW</div>
+        <div class="building wobble rank-dirt" id="building">
+          <div class="roof"></div>
+          <div class="floors" id="floors">
+            <div class="floor"><i class="window"></i><i class="window"></i><i class="window"></i></div>
+          </div>
+          <div class="foundation"></div>
+        </div>
+        <div class="ground"></div>
+        <div class="scene-bottom"><span>STRUCTURAL INTEGRITY: <b id="integrity-label">12%</b></span><span>WEATHER: <b id="weather-label">CLEAR</b></span></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>Buildings completed</small><strong id="completed">0</strong></div>
+        <div class="stat"><small>Best survival</small><strong id="best">—</strong></div>
+        <div class="stat"><small>Building Rank</small><strong id="rank">Dirt</strong></div>
+      </div>
+    </section>
+
+    <aside class="right-col">
+      <section class="panel timer-card">
+        <div class="timer-top"><span>02 / Time until collapse</span><span id="phase">ACTIVE</span></div>
+        <div class="timer" id="timer">10.0 <span>sec</span></div>
+        <div class="bar"><div class="bar-fill" id="bar"></div></div>
+        <div class="timer-hint" id="hint">The foundations are terrible. This one is not going to last.</div>
+        <button class="primary" id="start">START CONSTRUCTION</button>
+      </section>
+
+      <section class="panel upgrades">
+        <div class="upgrades-head"><h2>03 / Global Upgrades</h2><span class="level" id="level">RANK: Dirt | XP: 0/20</span></div>
+        <div class="upgrade">
+          <div class="upgrade-icon">▣</div>
+          <div><h3>Better Framework</h3><p>Increases XP gain by 1.1× per level.</p></div>
+          <button id="framework">UPGRADE<span>2 materials</span></button>
+        </div>
+        <div class="upgrade">
+          <div class="upgrade-icon">⬡</div>
+          <div><h3>Modern Engineering</h3><p>Doubles materials gained per level.</p></div>
+          <button id="engineering">UPGRADE<span>5 materials</span></button>
+        </div>
+        <div class="upgrade">
+          <div class="upgrade-icon">⚠</div>
+          <div><h3>Dumber Engineers</h3><p>Reduces collapse time by 1/5 per level.</p></div>
+          <button id="dumb">UPGRADE<span>5 materials</span></button>
+        </div>
+        <button class="primary" id="floor" style="margin-top:14px;">+1 FLOOR</button>
+      </section>
+      <section class="panel log">
+        <h2>04 / Site report</h2>
+        <div id="logline">No construction activity yet. Press start when you're ready.</div>
+      </section>
+    </aside>
+  </main>
+  <div class="footer"><span>INFRASTRUCTURE DIVISION / BUILD TO LAST</span><span>Every structure starts somewhere.</span></div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const upgrades = {
+    framework: { cost: 2, name: "Better Framework", max: 10, xpMult: 1.1 },
+    engineering: { cost: 5, name: "Modern Engineering", max: 5, matMult: 2 },
+    dumb: { cost: 5, name: "Dumber Engineers", max: 10, timeMult: 0.8 }
+  };
+  const ranks = [
+    { name: "Dirt", style: "dirt", xpRequired: 0, nextXp: 20, materials: 1, integrity: 8 },
+    { name: "Wood", style: "wood", xpRequired: 20, nextXp: 50, materials: 2, integrity: 15 },
+    { name: "Stone", style: "stone", xpRequired: 50, nextXp: 100, materials: 3, integrity: 22 },
+    { name: "Stone Bricks", style: "brick", xpRequired: 100, nextXp: 200, materials: 4, integrity: 30 },
+    { name: "Metal", style: "metal", xpRequired: 200, nextXp: 400, materials: 5, integrity: 40 },
+    { name: "Luxury", style: "luxury", xpRequired: 400, nextXp: 350, materials: 6, integrity: 48 },
+    { name: "Skyscraper", style: "sky", xpRequired: 450, nextXp: 500, materials: 7, integrity: 55 },
+    { name: "Tall Skyscraper", style: "tall", xpRequired: 500, nextXp: 750, materials: 8, integrity: 60 },
+    { name: "Insane Skyscraper", style: "insane", xpRequired: 750, nextXp: 1000, materials: 9, integrity: 65 },
+    { name: "Atmospheric Skyscraper", style: "atmo", xpRequired: 1000, nextXp: 1500, materials: 10, integrity: 70 },
+    { name: "Gigantic Skyscraper", style: "gigantic", xpRequired: 1500, nextXp: 3000, materials: 11, integrity: 75 },
+    { name: "Space Skyscraper", style: "space", xpRequired: 3000, nextXp: 5000, materials: 12, integrity: 80 },
+    { name: "Moon Skyscraper", style: "moon", xpRequired: 5000, nextXp: 7500, materials: 13, integrity: 85 },
+    { name: "Galactic Skyscraper", style: "galactic", xpRequired: 7500, nextXp: 15000, materials: 14, integrity: 88 },
+    { name: "Black Hole Skyscraper", style: "blackhole", xpRequired: 15000, nextXp: 20000, materials: 15, integrity: 92 },
+    { name: "Multigalactic Skyscraper", style: "multi", xpRequired: 20000, nextXp: 50000, materials: 16, integrity: 95 },
+    { name: "MultiDimensional Skyscraper", style: "dimension", xpRequired: 50000, nextXp: Infinity, materials: 18, integrity: 99 }
+  ];
+  let seconds = 10, remaining = 10, running = false, completed = 0, best = 0;
+  let materials = 0, level = 0, integrity = 12, startedAt = 0, raf = null;
+  let bought = { framework: 0, engineering: 0, dumb: 0 };
+  let extraFloors = 0;
+  let floorCost = 10;
+  let lastFrame = 0;
+  let xp = 0;
+  let currentRankIndex = 0;
+  let weather = "clear";
+  let weatherChangeIn = 40 + Math.random() * 50; // 30-80s roughly
+  let weatherAcc = 0;
+  let audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  // User's GitHub sounds (place these files next to the HTML)
+  const sounds = {
+    click: new Audio("click.wav"),
+    upgrade: new Audio("upgrade.wav"),
+    rebuild: new Audio("rebuild.wav")
+  };
+  function playSound(name) {
+    const s = sounds[name];
+    if (s) {
+      s.currentTime = 0;
+      s.play().catch(() => {});
+    }
+  }
+  function playThunder() {
+    const ctx = getAudio();
+    if (ctx.state === "suspended") ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(60, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.8);
+  }
+  function playRain() {
+    const ctx = getAudio();
+    if (ctx.state === "suspended") ctx.resume();
+    const bufferSize = ctx.sampleRate * 0.4;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.12;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 600;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.06;
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start();
+  }
+  const weathers = [
+    { id: "clear", label: "CLEAR", mult: 1, rain: false },
+    { id: "rain", label: "RAIN 1.5x XP", mult: 1.5, rain: true },
+    { id: "thunder", label: "THUNDER 1.8x XP", mult: 1.8, rain: true },
+    { id: "space", label: "SPACE WEATHER 5x XP", mult: 5, rain: false }
+  ];
+
+  function getWeather() { return weathers.find(w => w.id === weather) || weathers[0]; }
+  function setWeather(newWeather) {
+    weather = newWeather;
+    const w = getWeather();
+    $("weather-label").textContent = w.label;
+    document.querySelector(".scene").classList.toggle("space-weather", newWeather === "space");
+    const rainEl = $("rain");
+    rainEl.classList.toggle("active", w.rain);
+    if (w.rain && rainEl.children.length === 0) {
+      for (let i = 0; i < 60; i++) {
+        const drop = document.createElement("div");
+        drop.className = "rain-drop";
+        drop.style.left = Math.random() * 100 + "%";
+        drop.style.animationDuration = (0.4 + Math.random() * 0.6) + "s";
+        drop.style.animationDelay = Math.random() * 2 + "s";
+        drop.style.opacity = 0.3 + Math.random() * 0.5;
+        rainEl.appendChild(drop);
+      }
+    }
+  }
+  function updateWeather(delta) {
+    weatherAcc += delta;
+    if (weatherAcc >= weatherChangeIn) {
+      weatherAcc = 0;
+      weatherChangeIn = 30 + Math.random() * 50;
+      randomWeather();
+    }
+    // Thunder and rain sounds even when not building
+    if (weather === "thunder" && Math.random() < 0.015) {
+      const flash = $("lightning");
+      flash.classList.add("flash");
+      setTimeout(() => flash.classList.remove("flash"), 80);
+      playThunder();
+    }
+    if ((weather === "rain" || weather === "thunder") && Math.random() < 0.04) {
+      playRain();
+    }
+  }
+
+  function randomWeather() {
+    const r = Math.random();
+    if (r < 1/50) setWeather("space");
+    else if (r < 0.5) setWeather("clear");
+    else if (r < 0.8) setWeather("rain");
+    else setWeather("thunder");
+  }
+
+  let playTime = 0;
+  const achievements = [
+    { id: "time10", cat: "Time", name: "Getting Started", desc: "Play for 10 minutes", diff: "easy", check: () => playTime >= 600, reward: { xp: 50 } },
+    { id: "time20", cat: "Time", name: "Locked in", desc: "Play for 20 minutes", diff: "easy", check: () => playTime >= 1200, reward: { xp: 100, materials: 5 } },
+    { id: "time2h", cat: "Time", name: "Serious Dedication", desc: "Play for 2 hours", diff: "medium", check: () => playTime >= 7200, reward: { xp: 1000, materials: 20 } },
+    { id: "multi", cat: "Dedication", name: "Bro Is The BEST Engineer I've Ever Seen!", desc: "Reach MultiDimensional Skyscraper", diff: "insane", check: () => currentRankIndex >= 16, reward: { xp: 10000, materials: 100 } },
+    { id: "luxury", cat: "Dedication", name: "Luxurious Secret", desc: "Find The Most Luxury Building", diff: "medium", check: () => currentRankIndex >= 5, reward: { materials: 30 } },
+    { id: "xp100k", cat: "Dedication", name: "XP Lord", desc: "Reach 100,000 XP", diff: "extreme", check: () => xp >= 100000, reward: { materials: 100 } }
+  ];
+  let unlocked = {};
+  let claimed = {};
+
+  function renderAchievements() {
+    const list = $("ach-list");
+    list.innerHTML = "";
+    let lastCat = "";
+    achievements.forEach(a => {
+      if (a.cat !== lastCat) {
+        lastCat = a.cat;
+        const cat = document.createElement("div");
+        cat.className = "ach-cat";
+        cat.textContent = a.cat;
+        list.appendChild(cat);
+      }
+      const div = document.createElement("div");
+      div.className = "ach" + (unlocked[a.id] ? "" : " locked");
+      const imgName = a.name.replace(/[^a-zA-Z0-9]/g, "") + ".png";
+      let rewardText = "";
+      if (a.reward) {
+        const parts = [];
+        if (a.reward.xp) parts.push(`+${a.reward.xp} XP`);
+        if (a.reward.materials) parts.push(`+${a.reward.materials} Materials`);
+        rewardText = `<p style="color:var(--green);margin-top:3px">${parts.join(" · ")}</p>`;
+      }
+      const canClaim = unlocked[a.id] && !claimed[a.id];
+      div.innerHTML = `
+        <div class="no-img">🏆</div>
+        <div style="flex:1">
+          <h3>${a.name}</h3>
+          <p>${a.desc}</p>
+          ${rewardText}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="diff ${a.diff}">${a.diff}</span>
+          ${canClaim ? `<button class="primary" style="padding:6px 10px;font-size:9px;width:auto" data-claim="${a.id}">CLAIM</button>` : claimed[a.id] ? `<span style="font-size:9px;color:var(--green)">CLAIMED</span>` : ""}
+        </div>
+      `;
+      const img = new Image();
+      img.onload = () => {
+        const placeholder = div.querySelector(".no-img");
+        if (placeholder) placeholder.outerHTML = `<img src="${imgName}" alt="">`;
+      };
+      img.src = imgName;
+      list.appendChild(div);
+    });
+  }
+
+  function claimAchievement(id) {
+    const a = achievements.find(x => x.id === id);
+    if (!a || !unlocked[id] || claimed[id]) return;
+    claimed[id] = true;
+    if (a.reward.xp) xp += a.reward.xp;
+    if (a.reward.materials) materials += a.reward.materials;
+    checkRankUp();
+    report(`CLAIMED: ${a.name}`);
+    update();
+    renderAchievements();
+  }
+
+  function checkAchievements() {
+    achievements.forEach(a => {
+      if (!unlocked[a.id] && a.check()) {
+        unlocked[a.id] = true;
+        report(`ACHIEVEMENT UNLOCKED: ${a.name}`);
+      }
+    });
+  }
+
+  function getCurrentRank() { return ranks[currentRankIndex]; }
+  function lifespan() {
+    let time = 10 + currentRankIndex * 5;
+    // Use current timeMult (0.8 for Dumber, or 1/3 for Luxury Engineers)
+    time *= Math.pow(upgrades.dumb.timeMult || 0.8, bought.dumb);
+    return Math.max(1, time);
+  }
+  function checkRankUp() {
+    while (currentRankIndex < ranks.length - 1 && xp >= ranks[currentRankIndex + 1].xpRequired) {
+      currentRankIndex++;
+      report(`RANK UP! You can now construct: ${ranks[currentRankIndex].name}`);
+      checkAchievements();
+      // Special: Luxury Engineers if never bought Dumber Engineers
+      if (ranks[currentRankIndex].name === "Luxury" && bought.dumb === 0) {
+        upgrades.dumb.name = "Luxury Engineers";
+        upgrades.dumb.timeMult = 1/3;
+        const dumbH3 = document.querySelector("#dumb").closest(".upgrade").querySelector("h3");
+        if (dumbH3) dumbH3.textContent = "Luxury Engineers";
+        const dumbP = document.querySelector("#dumb").closest(".upgrade").querySelector("p");
+        if (dumbP) dumbP.textContent = "Reduces collapse time to 1/3 per level.";
+        report("Dumber Engineers has been upgraded to Luxury Engineers! (reduces time to 1/3)");
+      }
+    }
+  }
+  function update() {
+    const rank = getCurrentRank();
+    $("timer").innerHTML = `${Math.max(0, remaining).toFixed(1)} <span>sec</span>`;
+    $("bar").style.width = `${Math.max(0, remaining / seconds * 100)}%`;
+    $("bar").style.background = remaining < seconds * .25 ? "var(--red)" : remaining < seconds * .5 ? "var(--orange)" : "var(--green)";
+    $("completed").textContent = completed;
+    $("best").textContent = best ? `${best.toFixed(1)}s` : "—";
+    $("rank").textContent = rank.name;
+    $("materials-count").textContent = materials;
+    const nextXp = rank.nextXp === Infinity ? "MAX" : rank.nextXp;
+    $("level").textContent = `RANK: ${rank.name} | XP: ${xp}/${nextXp}`;
+    $("integrity-label").textContent = `${integrity}%`;
+    $("weather-label").textContent = getWeather().label;
+    $("site-status").textContent = running ? (remaining < seconds * .25 ? "CRITICAL" : "UNDER CONSTRUCTION") : "UNSTABLE";
+    $("phase").textContent = running ? "ACTIVE" : "STANDBY";
+    Object.entries(upgrades).forEach(([id, item]) => {
+      const button = $(id);
+      const current = bought[id];
+      const maxed = current >= item.max;
+      button.disabled = running || materials < item.cost || maxed;
+      button.innerHTML = maxed ? `MAX<span>Level ${current}</span>` : `UPGRADE<span>${item.cost} ${item.cost === 1 ? "material" : "materials"}</span>`;
+    });
+    const floorBtn = $("floor");
+    floorBtn.disabled = running || materials < floorCost;
+    floorBtn.textContent = `+1 FLOOR (${floorCost} materials)`;
+    $("start").disabled = running;
+    $("start").textContent = completed ? "BUILD NEXT STRUCTURE" : "START CONSTRUCTION";
+  }
+  function report(message) { $("logline").textContent = message; }
+  function makeBuilding() {
+    const b = $("building");
+    const rank = getCurrentRank();
+    b.className = `building wobble rank-${rank.style}`;
+    $("floors").innerHTML = "";
+    const floorCount = 1 + extraFloors;
+    for (let i = 0; i < floorCount; i++) {
+      const floor = document.createElement("div");
+      floor.className = "floor";
+      for (let j = 0; j < 3; j++) {
+        const w = document.createElement("i");
+        w.className = "window";
+        floor.appendChild(w);
+      }
+      $("floors").appendChild(floor);
+    }
+    $("floors").style.height = `${Math.min(320, 100 + (floorCount - 1) * 40)}px`;
+    $("building").style.height = `${Math.min(350, 140 + (floorCount - 1) * 40)}px`;
+    integrity = Math.min(99, rank.integrity + extraFloors * 2);
+  }
+  function start() {
+    if (running) return;
+    playSound("click");
+    makeBuilding();
+    seconds = lifespan();
+    remaining = seconds;
+    startedAt = performance.now();
+    lastFrame = startedAt;
+    running = true;
+    randomWeather();
+    $("hint").textContent = `Building lifespan: ${seconds} seconds. Rank: ${getCurrentRank().name}. Weather: ${getWeather().label}.`;
+    report(`Construction started. Building: ${getCurrentRank().name}. Weather: ${getWeather().label}.`);
+    update();
+    raf = requestAnimationFrame(tick);
+  }
+  function tick(now) {
+    if (!running) return;
+    const delta = Math.min((now - lastFrame) / 1000, .1);
+    lastFrame = now;
+    remaining -= delta;
+    updateWeather(delta);
+    if (remaining <= 0) {
+      remaining = 0;
+      collapse();
+      return;
+    }
+    const ratio = remaining / seconds;
+    if (ratio < .25) {
+      $("building").classList.add("cracked");
+      $("hint").textContent = "CRITICAL WARNING: Structural failure is imminent.";
+    } else if (ratio < .5) {
+      $("hint").textContent = "The structure is under stress. Better infrastructure and higher rank will help.";
+    }
+    update();
+    raf = requestAnimationFrame(tick);
+  }
+  function collapse() {
+    running = false;
+    $("building").className = `building collapsing rank-${getCurrentRank().style}`;
+    playSound("rebuild");
+    completed++;
+    best = Math.max(best, seconds);
+    const rank = getCurrentRank();
+    let baseXp = 5 + currentRankIndex * 2;
+    const mult = getWeather().mult * Math.pow(1.1, bought.framework);
+    const xpGain = Math.round(baseXp * mult);
+    let matGain = rank.materials * Math.pow(2, bought.engineering);
+    xp += xpGain;
+    materials += matGain;
+    checkRankUp();
+    checkAchievements();
+    $("hint").textContent = `BUILDING COLLAPSED. +${xpGain} XP (${mult.toFixed(1)}x), +${matGain} materials. Rebuild to progress.`;
+    report(`Structure #${completed} (${rank.name}) collapsed after ${seconds.toFixed(1)}s. +${xpGain} XP, +${matGain} materials.`);
+    $("site-status").textContent = "COLLAPSED";
+    $("phase").textContent = "FAILED";
+    update();
+    $("start").disabled = false;
+    $("start").textContent = "REBUILD";
+  }
+  function buy(id) {
+    if (id === "floor") {
+      if (running || materials < floorCost) return;
+      materials -= floorCost;
+      extraFloors++;
+      floorCost = Math.floor(floorCost * 1.5) + 1;
+      playSound("upgrade");
+      report(`+1 Floor added. Total floors: ${1 + extraFloors}. Next cost: ${floorCost} materials.`);
+      $("hint").textContent = `Floor added. Buildings now have ${1 + extraFloors} floors.`;
+      update();
+      return;
+    }
+    const item = upgrades[id];
+    if (running || materials < item.cost || bought[id] >= item.max) return;
+    materials -= item.cost;
+    bought[id]++;
+    item.cost = Math.floor(item.cost * 1.6) + 1;
+    level++;
+    const xpGain = item.cost * 3;
+    xp += xpGain;
+    playSound("upgrade");
+    checkRankUp();
+    checkAchievements();
+    report(`${item.name} upgraded to level ${bought[id]}. +${xpGain} XP.`);
+    $("hint").textContent = `${item.name} level ${bought[id]}. +${xpGain} XP.`;
+    update();
+  }
+  $("start").addEventListener("click", start);
+  Object.keys(upgrades).forEach(id => $(id).addEventListener("click", () => buy(id)));
+  $("floor").addEventListener("click", () => buy("floor"));
+  update();
+  makeBuilding(); // Initialize as Dirt on load
+  setWeather("clear");
+  // Continuous weather system (works even when not building)
+  setInterval(() => {
+    updateWeather(0.5);
+    playTime += 0.5;
+    checkAchievements();
+  }, 500);
+  $("ach-btn").addEventListener("click", () => {
+    renderAchievements();
+    $("ach-modal").classList.add("open");
+  });
+  $("ach-close").addEventListener("click", () => $("ach-modal").classList.remove("open"));
+  $("ach-modal").addEventListener("click", e => {
+    if (e.target.id === "ach-modal") $("ach-modal").classList.remove("open");
+    const claimId = e.target.dataset?.claim;
+    if (claimId) claimAchievement(claimId);
+  });
+})();
+</script>
+</body>
+</html>
