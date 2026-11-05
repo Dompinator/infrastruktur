@@ -21,7 +21,23 @@
   .brand { display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:.16em; font-size:13px; }
   .mark { width:34px; height:34px; border:1px solid #6e8b70; display:grid; place-items:center; color:var(--green); transform:rotate(45deg); }
   .mark span { transform:rotate(-45deg); font-size:18px; }
-  .status { color:var(--muted); font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
+  .materials-display {
+    display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 14px; letter-spacing: .06em;
+  }
+  .cube {
+    width: 22px; height: 22px; position: relative; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(30deg);
+    animation: spinCube 6s linear infinite;
+  }
+  .cube span {
+    position: absolute; width: 22px; height: 22px; border: 1px solid #b8f36b; background: #26372b88;
+  }
+  .cube span:nth-child(1) { transform: rotateY(0deg) translateZ(11px); }
+  .cube span:nth-child(2) { transform: rotateY(90deg) translateZ(11px); }
+  .cube span:nth-child(3) { transform: rotateY(180deg) translateZ(11px); }
+  .cube span:nth-child(4) { transform: rotateY(-90deg) translateZ(11px); }
+  .cube span:nth-child(5) { transform: rotateX(90deg) translateZ(11px); }
+  .cube span:nth-child(6) { transform: rotateX(-90deg) translateZ(11px); }
+  @keyframes spinCube { to { transform: rotateX(-20deg) rotateY(390deg); } }
   .hero { display:grid; grid-template-columns: 1.1fr .9fr; gap:44px; align-items:end; margin-bottom:28px; }
   .eyebrow { color:var(--green); font-size:11px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; }
   h1 { font-size:clamp(42px, 7vw, 78px); line-height:.94; letter-spacing:-.065em; margin:15px 0 18px; max-width:700px; }
@@ -43,7 +59,8 @@
   .rain-drop { position:absolute; width:1px; height:18px; background:linear-gradient(#fff0, #a0c0e0); animation:fall linear infinite; }
   @keyframes fall { to { transform:translateY(420px); } }
   .lightning { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:4; transition:opacity .05s; }
-  .lightning.flash { opacity:.7; }
+  .scene.space-weather { background: radial-gradient(ellipse at 50% 0%, #1a0a3a 0%, #0a0518 70%); }
+  .scene.space-weather .sun { background:#9b59b6; opacity:.3; }
   .building { position:relative; z-index:2; width:230px; height:140px; margin-bottom:44px; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; transform-origin:bottom center; transition:filter .3s; }
   .roof { width:246px; height:15px; background:#758478; border:2px solid #a6b5a2; border-bottom:0; }
   .floors { width:220px; height:100px; display:flex; flex-direction:column-reverse; gap:5px; padding:0 8px; background:#657768; border:3px solid #a2b19d; border-top:0; box-shadow:inset 0 0 0 5px #435447, 13px 8px 0 #0002; }
@@ -158,16 +175,56 @@
   .log { padding:16px 19px; }
   .log h2 { margin:0 0 10px; font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
   #logline { font-size:11px; line-height:1.5; color:#d0dbd1; min-height:34px; }
-  .footer { display:flex; justify-content:space-between; gap:16px; margin-top:22px; color:#6f8073; font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+  .achievements-btn {
+    position: absolute; left: -60px; top: 18px;
+    width: 42px; height: 42px; border-radius: 8px; border: 1px solid #536b50;
+    background: #26372b; color: var(--green); font-size: 20px; cursor: pointer;
+    display: grid; place-items: center; z-index: 20; transition: transform .15s, filter .15s;
+  }
+  .achievements-btn:hover { filter: brightness(1.15); transform: scale(1.05); }
+  .dashboard { position: relative; }
+  .achievements-modal {
+    position: fixed; inset: 0; background: #0008; display: none; align-items: center; justify-content: center; z-index: 30;
+  }
+  .achievements-modal.open { display: flex; }
+  .achievements-panel {
+    width: min(520px, 92vw); max-height: 80vh; overflow-y: auto; background: #19221d; border: 1px solid #34463a;
+    border-radius: 14px; padding: 20px; box-shadow: 0 20px 60px #0006;
+  }
+  .achievements-panel h2 { margin: 0 0 14px; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
+  .ach-cat { margin: 16px 0 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--green); }
+  .ach { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2a3a2f; }
+  .ach img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #26372b; }
+  .ach .no-img { width: 40px; height: 40px; border-radius: 6px; background: #26372b; display: grid; place-items: center; color: #6f8073; font-size: 18px; }
+  .ach h3 { margin: 0 0 3px; font-size: 13px; }
+  .ach p { margin: 0; font-size: 11px; color: var(--muted); }
+  .ach.locked { opacity: .45; }
+  .diff { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
+  .diff.easy { background: #2a4a2a; color: #b8f36b; }
+  .diff.medium { background: #4a3a1a; color: #ffb45e; }
+  .diff.extreme { background: #4a1a1a; color: #ff6f68; }
+  .diff.insane { background: #3a1a3a; color: #d4a5ff; }
+  .close-ach { margin-top: 16px; }
   @media(max-width:800px) { .hero{grid-template-columns:1fr;gap:12px}.hero-note{justify-self:start}.dashboard{grid-template-columns:1fr}.scene{min-height:350px}.right-col{display:grid;grid-template-columns:1fr} }
   @media(max-width:480px) { .wrap{width:calc(100% - 22px);padding-top:18px} header{margin-bottom:30px}.stats .stat{padding:13px 10px}.stat strong{font-size:18px}.building{transform:scale(.85);transform-origin:bottom center;margin-bottom:34px}.scene{min-height:320px}.footer{flex-direction:column} }
 </style>
 </head>
 <body>
+<div class="achievements-modal" id="ach-modal">
+  <div class="achievements-panel">
+    <h2>Achievements</h2>
+    <div id="ach-list"></div>
+    <button class="primary close-ach" id="ach-close">CLOSE</button>
+  </div>
+</div>
 <div class="wrap">
   <header>
     <div class="brand"><div class="mark"><span>⌂</span></div> INFRASTRUCTURE</div>
     <div class="status">A construction survival simulator · v1.0</div>
+    <div class="materials-display">
+      <div class="cube"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <span id="materials-count">0</span>
+    </div>
   </header>
 
   <section class="hero">
@@ -180,6 +237,7 @@
   </section>
 
   <main class="dashboard">
+    <button class="achievements-btn" id="ach-btn" title="Achievements">🏆</button>
     <section class="panel">
       <div class="panel-head">
         <h2>01 / Construction site</h2>
@@ -259,7 +317,7 @@
     { name: "Stone Bricks", style: "brick", xpRequired: 100, nextXp: 200, materials: 4, integrity: 30 },
     { name: "Metal", style: "metal", xpRequired: 200, nextXp: 400, materials: 5, integrity: 40 },
     { name: "Luxury", style: "luxury", xpRequired: 400, nextXp: 350, materials: 6, integrity: 48 },
-    { name: "Skyscraper", style: "sky", xpRequired: 350, nextXp: 500, materials: 7, integrity: 55 },
+    { name: "Skyscraper", style: "sky", xpRequired: 450, nextXp: 500, materials: 7, integrity: 55 },
     { name: "Tall Skyscraper", style: "tall", xpRequired: 500, nextXp: 750, materials: 8, integrity: 60 },
     { name: "Insane Skyscraper", style: "insane", xpRequired: 750, nextXp: 1000, materials: 9, integrity: 65 },
     { name: "Atmospheric Skyscraper", style: "atmo", xpRequired: 1000, nextXp: 1500, materials: 10, integrity: 70 },
@@ -337,7 +395,8 @@
   const weathers = [
     { id: "clear", label: "CLEAR", mult: 1, rain: false },
     { id: "rain", label: "RAIN 1.5x XP", mult: 1.5, rain: true },
-    { id: "thunder", label: "THUNDER 1.8x XP", mult: 1.8, rain: true }
+    { id: "thunder", label: "THUNDER 1.8x XP", mult: 1.8, rain: true },
+    { id: "space", label: "SPACE WEATHER 5x XP", mult: 5, rain: false }
   ];
 
   function getWeather() { return weathers.find(w => w.id === weather) || weathers[0]; }
@@ -345,6 +404,7 @@
     weather = newWeather;
     const w = getWeather();
     $("weather-label").textContent = w.label;
+    document.querySelector(".scene").classList.toggle("space-weather", newWeather === "space");
     const rainEl = $("rain");
     rainEl.classList.toggle("active", w.rain);
     if (w.rain && rainEl.children.length === 0) {
@@ -380,9 +440,88 @@
 
   function randomWeather() {
     const r = Math.random();
-    if (r < 0.5) setWeather("clear");
+    if (r < 1/50) setWeather("space");
+    else if (r < 0.5) setWeather("clear");
     else if (r < 0.8) setWeather("rain");
     else setWeather("thunder");
+  }
+
+  let playTime = 0;
+  const achievements = [
+    { id: "time10", cat: "Time", name: "Getting Started", desc: "Play for 10 minutes", diff: "easy", check: () => playTime >= 600, reward: { xp: 50 } },
+    { id: "time20", cat: "Time", name: "Locked in", desc: "Play for 20 minutes", diff: "easy", check: () => playTime >= 1200, reward: { xp: 100, materials: 5 } },
+    { id: "time2h", cat: "Time", name: "Serious Dedication", desc: "Play for 2 hours", diff: "medium", check: () => playTime >= 7200, reward: { xp: 1000, materials: 20 } },
+    { id: "multi", cat: "Dedication", name: "Bro Is The BEST Engineer I've Ever Seen!", desc: "Reach MultiDimensional Skyscraper", diff: "insane", check: () => currentRankIndex >= 16, reward: { xp: 10000, materials: 100 } },
+    { id: "luxury", cat: "Dedication", name: "Luxurious Secret", desc: "Find The Most Luxury Building", diff: "medium", check: () => currentRankIndex >= 5, reward: { materials: 30 } },
+    { id: "xp100k", cat: "Dedication", name: "XP Lord", desc: "Reach 100,000 XP", diff: "extreme", check: () => xp >= 100000, reward: { materials: 100 } }
+  ];
+  let unlocked = {};
+  let claimed = {};
+
+  function renderAchievements() {
+    const list = $("ach-list");
+    list.innerHTML = "";
+    let lastCat = "";
+    achievements.forEach(a => {
+      if (a.cat !== lastCat) {
+        lastCat = a.cat;
+        const cat = document.createElement("div");
+        cat.className = "ach-cat";
+        cat.textContent = a.cat;
+        list.appendChild(cat);
+      }
+      const div = document.createElement("div");
+      div.className = "ach" + (unlocked[a.id] ? "" : " locked");
+      const imgName = a.name.replace(/[^a-zA-Z0-9]/g, "") + ".png";
+      let rewardText = "";
+      if (a.reward) {
+        const parts = [];
+        if (a.reward.xp) parts.push(`+${a.reward.xp} XP`);
+        if (a.reward.materials) parts.push(`+${a.reward.materials} Materials`);
+        rewardText = `<p style="color:var(--green);margin-top:3px">${parts.join(" · ")}</p>`;
+      }
+      const canClaim = unlocked[a.id] && !claimed[a.id];
+      div.innerHTML = `
+        <div class="no-img">🏆</div>
+        <div style="flex:1">
+          <h3>${a.name}</h3>
+          <p>${a.desc}</p>
+          ${rewardText}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="diff ${a.diff}">${a.diff}</span>
+          ${canClaim ? `<button class="primary" style="padding:6px 10px;font-size:9px;width:auto" data-claim="${a.id}">CLAIM</button>` : claimed[a.id] ? `<span style="font-size:9px;color:var(--green)">CLAIMED</span>` : ""}
+        </div>
+      `;
+      const img = new Image();
+      img.onload = () => {
+        const placeholder = div.querySelector(".no-img");
+        if (placeholder) placeholder.outerHTML = `<img src="${imgName}" alt="">`;
+      };
+      img.src = imgName;
+      list.appendChild(div);
+    });
+  }
+
+  function claimAchievement(id) {
+    const a = achievements.find(x => x.id === id);
+    if (!a || !unlocked[id] || claimed[id]) return;
+    claimed[id] = true;
+    if (a.reward.xp) xp += a.reward.xp;
+    if (a.reward.materials) materials += a.reward.materials;
+    checkRankUp();
+    report(`CLAIMED: ${a.name}`);
+    update();
+    renderAchievements();
+  }
+
+  function checkAchievements() {
+    achievements.forEach(a => {
+      if (!unlocked[a.id] && a.check()) {
+        unlocked[a.id] = true;
+        report(`ACHIEVEMENT UNLOCKED: ${a.name}`);
+      }
+    });
   }
 
   function getCurrentRank() { return ranks[currentRankIndex]; }
@@ -396,6 +535,7 @@
     while (currentRankIndex < ranks.length - 1 && xp >= ranks[currentRankIndex + 1].xpRequired) {
       currentRankIndex++;
       report(`RANK UP! You can now construct: ${ranks[currentRankIndex].name}`);
+      checkAchievements();
       // Special: Luxury Engineers if never bought Dumber Engineers
       if (ranks[currentRankIndex].name === "Luxury" && bought.dumb === 0) {
         upgrades.dumb.name = "Luxury Engineers";
@@ -416,6 +556,7 @@
     $("completed").textContent = completed;
     $("best").textContent = best ? `${best.toFixed(1)}s` : "—";
     $("rank").textContent = rank.name;
+    $("materials-count").textContent = materials;
     const nextXp = rank.nextXp === Infinity ? "MAX" : rank.nextXp;
     $("level").textContent = `RANK: ${rank.name} | XP: ${xp}/${nextXp}`;
     $("integrity-label").textContent = `${integrity}%`;
@@ -506,6 +647,7 @@
     xp += xpGain;
     materials += matGain;
     checkRankUp();
+    checkAchievements();
     $("hint").textContent = `BUILDING COLLAPSED. +${xpGain} XP (${mult.toFixed(1)}x), +${matGain} materials. Rebuild to progress.`;
     report(`Structure #${completed} (${rank.name}) collapsed after ${seconds.toFixed(1)}s. +${xpGain} XP, +${matGain} materials.`);
     $("site-status").textContent = "COLLAPSED";
@@ -536,6 +678,7 @@
     xp += xpGain;
     playSound("upgrade");
     checkRankUp();
+    checkAchievements();
     report(`${item.name} upgraded to level ${bought[id]}. +${xpGain} XP.`);
     $("hint").textContent = `${item.name} level ${bought[id]}. +${xpGain} XP.`;
     update();
@@ -547,7 +690,21 @@
   makeBuilding(); // Initialize as Dirt on load
   setWeather("clear");
   // Continuous weather system (works even when not building)
-  setInterval(() => updateWeather(0.5), 500);
+  setInterval(() => {
+    updateWeather(0.5);
+    playTime += 0.5;
+    checkAchievements();
+  }, 500);
+  $("ach-btn").addEventListener("click", () => {
+    renderAchievements();
+    $("ach-modal").classList.add("open");
+  });
+  $("ach-close").addEventListener("click", () => $("ach-modal").classList.remove("open"));
+  $("ach-modal").addEventListener("click", e => {
+    if (e.target.id === "ach-modal") $("ach-modal").classList.remove("open");
+    const claimId = e.target.dataset?.claim;
+    if (claimId) claimAchievement(claimId);
+  });
 })();
 </script>
 </body>
